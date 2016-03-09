@@ -1,0 +1,47 @@
+#!/bin/bash  
+#  
+#chkconfig: - 85 15  
+#description: Nginx is a World Wide Web server.  
+#processname: nginx  
+#spawn-fcgi -a 127.0.0.1 -p 9000 -C 10 -u www -f /data/applications/php/bin/php-cgi 
+nginx={{ pillar['ins_dir'] }}/nginx/sbin/nginx  
+conf={{ pillar['ins_dir'] }}/nginx/conf/nginx.conf  
+ 
+case $1 in  
+       start)  
+              echo -n "Starting Nginx"   
+              $nginx -c $conf  
+              echo " done"  
+       ;;  
+ 
+       stop)  
+              echo -n "Stopping Nginx"  
+              #killall -9 nginx  
+			  $nginx -s stop
+              echo " done"  
+       ;;  
+ 
+       test)  
+              $nginx -t -c $conf  
+       ;;  
+ 
+        reload)  
+              echo -n "Reloading Nginx"  
+              ps auxww | grep nginx | grep master | awk '{print $2}' | xargs kill -HUP  
+              echo " done"  
+       ;;  
+ 
+        restart)  
+                $0 stop  
+                $0 start  
+       ;;  
+ 
+       show)  
+              ps -aux|grep nginx  
+       ;;  
+ 
+       *)  
+              echo -n "Usage: $0 {start|restart|reload|stop|test|show}"  
+       ;;  
+ 
+esac
